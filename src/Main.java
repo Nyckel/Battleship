@@ -6,6 +6,7 @@ public class Main {
         // Create ships, grid and players
         Player p1 = new Player();
         Player p2 = new Player();
+
         ArrayList<Player> players = new ArrayList<>();
         players.add(p1);
         players.add(p2);
