@@ -6,20 +6,17 @@ import states.State;
 
 public class Display extends Application {
 
-    private Stage window;
-    private State currentState;
+    private static Stage window;
+    private static State currentState;
 
     public Display(){} // JavaFX application needs a default constructor where initialized
 
-    public Display(State first) {
+    public Display(String[] args, State first) {
+
         currentState = first;
-
-    }
-
-    public void startRunning(String[] args) {
         launch(args);
-    }
 
+    }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -27,14 +24,9 @@ public class Display extends Application {
         window = primaryStage;
         window.setTitle("Battle of Warships");
 
-        System.out.println("Hey from before");
         currentState.start(window);
         window.show();
 
-    }
-
-    public void setCurrentState(State s) {
-        currentState = s;
     }
 
 }

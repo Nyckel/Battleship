@@ -6,6 +6,6 @@ public class Submarine extends Ship {
         this.name = "Submarine";
         this.length = 3;
         this.shootingRange = 4;
-        this.shootingType = "vertical";
+        this.shootingType = "front";
     }
 }

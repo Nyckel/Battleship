@@ -2,8 +2,12 @@ package common;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import ships.Ship;
+
+import java.util.ArrayList;
 
 public class DisplayHelper {
     public static final int WINDOW_WIDTH = 800;
@@ -13,8 +17,20 @@ public class DisplayHelper {
     public static final int GRID_SIZE = 11 * CELL_SIZE + 1; // +1 is for grid line
 
 
+    public static Position getClickPosition(MouseEvent event) throws Exception {
+        int x = (int) event.getX();
+        int y = (int) event.getY();
+        if (x < CELL_SIZE || x > GRID_SIZE || y < CELL_SIZE || y > GRID_SIZE) {
+            throw new Exception("Click out of grid");
+        }
+        return new Position((x - x%CELL_SIZE)/CELL_SIZE, (y - y%CELL_SIZE)/CELL_SIZE);
+    }
+
     public static void drawGrid(Canvas cv) {
         GraphicsContext gc = cv.getGraphicsContext2D();
+
+        gc.setFill(Color.WHITE);
+        gc.fillRect(0, 0, cv.getWidth(), cv.getHeight());
 
         gc.setFill(Color.BLACK);
         gc.setFont(new Font(15));
@@ -43,25 +59,37 @@ public class DisplayHelper {
     }
 
 
-    public static void colorCells(Canvas canvas, int x, int y) {
-        if (!(x >= 1 && x <= 10 && y >= 1 && y <= 10 )) {
+    public static void colorCell(Canvas canvas, Position pos, Color color) {
+        if (!(pos.x >= 1 && pos.x <= 10 && pos.y >= 1 && pos.y <= 10 )) {
             return;
         }
-        else {
-            GraphicsContext rect = canvas.getGraphicsContext2D();
-            rect.setFill(Color.BLACK);
-            rect.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-        }
+
+        GraphicsContext rect = canvas.getGraphicsContext2D();
+        rect.setFill(color);
+        rect.fillRect(pos.x * CELL_SIZE + 1, pos.y * CELL_SIZE + 1, CELL_SIZE -2, CELL_SIZE -2);
     }
 
-    public static void clearCells(Canvas canvas, int x, int y){
-        if (!(x >= 1 && x <= 10 && y >= 1 && y <= 10 )) {
-            return;
-        }
-        else {
-            GraphicsContext rect = canvas.getGraphicsContext2D();
-            rect.setFill(Color.WHITE);
-            rect.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-        }
+    public static void colorCells(Canvas canvas, ArrayList<Position> positions, Color color) {
+        for (Position pos : positions) colorCell(canvas, pos, color);
     }
+
+    public static void clearCell(Canvas canvas, Position pos){
+        colorCell(canvas, pos, Color.WHITE);
+    }
+
+    public static void addCrossToCell(Canvas cv, Position pos, Color color) {
+        System.out.println("Adding cross");
+        GraphicsContext gc = cv.getGraphicsContext2D();
+
+        gc.setStroke(color);
+        int minXPos = pos.x * CELL_SIZE + 1;
+        int maxXPos = minXPos + CELL_SIZE - 2;
+        int minYPos = pos.y * CELL_SIZE + 1;
+        int maxYPos = minYPos + CELL_SIZE - 2;
+
+        gc.strokeLine(minXPos, minYPos, maxXPos, maxYPos);
+        gc.strokeLine(minXPos, maxYPos, maxXPos, minYPos);
+
+    }
+
 }

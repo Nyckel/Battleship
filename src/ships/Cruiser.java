@@ -6,6 +6,6 @@ public class Cruiser extends Ship {
         this.name = "Cruiser";
         this.length = 4;
         this.shootingRange = 2;
-        this.shootingType = "horizontal";
+        this.shootingType = "side";
     }
 }

@@ -6,6 +6,6 @@ public class AircraftCarrier extends Ship {
         this.name = "Aircraft Carrier";
         this.length = 5;
         this.shootingRange = 2;
-        this.shootingType = "horizontal";
+        this.shootingType = "side";
     }
 }

@@ -6,6 +6,6 @@ public class TorpedoBoat extends Ship {
         this.name = "Torpedo Boat";
         this.length = 2;
         this.shootingRange = 5;
-        this.shootingType = "vertical";
+        this.shootingType = "front";
     }
 }

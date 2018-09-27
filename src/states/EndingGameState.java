@@ -1,6 +1,7 @@
 package states;
 
 import common.DisplayHelper;
+import common.Player;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -9,17 +10,23 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
-public class WelcomeScreenState extends State {
+public class EndingGameState extends State {
+
+    private Player player;
+
+    public EndingGameState(Player p) {
+        player = p;
+    }
 
     @Override
     public void createScene() {
 
-        Label title = new Label("Battle of Warships");
+        Label title = new Label("Player " + player.getId() + " has won!");
         title.setFont(new Font("Dubai Regular", 48));
         title.setTextFill(Color.DARKBLUE);
 
-        Button startButton = new Button("Start");
-        startButton.setOnAction(e -> goToNextState());
+        Button startButton = new Button("Rejouer");
+        startButton.setOnAction(e -> goToNextState()); //TODO: Return to original state
         startButton.setPrefSize(150, 50);
 
         VBox layout = new VBox(10);

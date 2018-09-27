@@ -3,117 +3,156 @@ package states;
 import common.DisplayHelper;
 import common.Player;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import ships.Ship;
 
-import java.util.ArrayList;
-
+import common.Position;
 import static common.DisplayHelper.*;
-import static common.DisplayHelper.CELL_SIZE;
+
 
 public class ShipPlacementState extends State {
 
     private Player player;
     private Canvas canvas;
+    private Label currentShipLabel;
 
     public ShipPlacementState(Player p) {
         player = p;
+        player.setSelectedShip(player.getShips().get(0));
     }
 
     @Override
     public void createScene() {
-        ArrayList<Button> shipsButtons = new ArrayList<>();
 
-        Label title = new Label("Player " + player.getId() + " ship placement");
-        title.setFont(new Font("Dubai Regular", 30));
-        title.setTextFill(Color.DARKBLUE);
-
-        canvas = new Canvas(GRID_SIZE, GRID_SIZE);
-        setClickHandler(canvas);
-        DisplayHelper.drawGrid(canvas);
-
-        Button validatePlacement = new Button("Validate placement");
-        validatePlacement.setOnAction(e -> validatePlacement());
-
-        HBox buttons = new HBox(0);
-        buttons.setAlignment(Pos.CENTER);
-
-        for (Ship s : player.getShips())
-        {
-            Button b = new Button(s.getName() + " (" + s.getLength() + " - " + s.getShootingRange() + ")");
-            shipsButtons.add(b);
-            b.setOnAction(e -> shipButtonAction(b, s));
-            buttons.getChildren().add(b);
-        }
-
-        // getMouseClickPosition(canvas);
-
-        VBox layout = new VBox(0 );
-        layout.setAlignment(Pos.CENTER);
+        Insets margin = new Insets(10,10,10,10);
+        BorderPane layout = new BorderPane();
         layout.setPrefSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-        layout.getChildren().addAll(title, canvas, buttons, validatePlacement);
+
+        createTitle(layout, margin);
+        createCanvas(layout, margin);
+        createShipSelectionInterface(layout, margin);
+        createValidationButton(layout, margin);
 
         scene = new Scene(layout);
     }
 
+    private void createShipSelectionInterface(BorderPane mainLayout, Insets margin) {
+        VBox buttonsLayout = new VBox(0);
+        buttonsLayout.setAlignment(Pos.CENTER);
 
-    private void setClickHandler(Canvas canvas){
+        currentShipLabel = new Label(player.getSelectedShip().getName());
+        buttonsLayout.getChildren().add(currentShipLabel);
+
+        for (Ship s : player.getShips())
+        {
+            Button b = new Button(s.getName() + " (" + s.getLength() + " - " + s.getShootingRange() + ")");
+            b.setOnAction(e -> shipButtonAction(b, s));
+            buttonsLayout.getChildren().add(b);
+        }
+
+        mainLayout.setMargin(buttonsLayout, margin);
+        mainLayout.setAlignment(buttonsLayout, Pos.TOP_RIGHT);
+        mainLayout.setRight(buttonsLayout);
+
+    }
+
+    private void createValidationButton(BorderPane mainLayout, Insets margin) {
+        Button validatePlacementButton = new Button("Validate placement");
+        validatePlacementButton.setOnAction(e -> validateButtonAction());
+
+        mainLayout.setMargin(validatePlacementButton, margin);
+        mainLayout.setAlignment(validatePlacementButton, Pos.BASELINE_CENTER);
+        mainLayout.setBottom(validatePlacementButton);
+
+    }
+
+    private void createTitle(BorderPane mainLayout, Insets margin) {
+        Label title = new Label("Player " + player.getId() + " ship placement");
+        title.setFont(new Font("Dubai Regular", 30));
+        title.setTextFill(Color.DARKBLUE);
+
+        mainLayout.setMargin(title, margin);
+        mainLayout.setAlignment(title, Pos.CENTER);
+        mainLayout.setTop(title);
+    }
+
+    private void createCanvas(BorderPane mainLayout, Insets margin) {
+        canvas = new Canvas(GRID_SIZE, GRID_SIZE);
+        setClickHandler(canvas);
+
+        DisplayHelper.drawGrid(canvas);
+
+        mainLayout.setMargin(canvas, margin);
+        mainLayout.setLeft(canvas);
+    }
+
+    private void setClickHandler(Canvas canvas) {
         canvas.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                int x = (int) event.getX();
-                int y = (int) event.getY();
-                if ((x >= CELL_SIZE) && (y >= CELL_SIZE)) {
-                    clickOnGrid((x - x%CELL_SIZE)/CELL_SIZE, (y - y%CELL_SIZE)/CELL_SIZE);
+                try {
+                    Position pos = DisplayHelper.getClickPosition(event);
+                    if (event.getButton() == MouseButton.PRIMARY) {
+                        placeShipCell(pos);
+                    } else if (event.getButton() == MouseButton.SECONDARY) {
+                        rightClickOnGrid(pos);
+                    }
+                } catch (Exception e) {
+                    // Clicked out of grid
                 }
+
             }
         });
     }
 
-    private void clickOnGrid(int x, int y) // TODO: Check if worth moving to DisplayHelper
-    {
+    private void placeShipCell(Position pos) {
         if (player.getSelectedShip() != null) {
-            if (! player.useCell(x, y)) {
-                if (player.getSelectedShip().getCellsPositions().size() == 0)
-                {
-                    player.getSelectedShip().addCellPosition(x,y);
-                    DisplayHelper.colorCells(canvas, x, y);
-                }
-                else {
-
+            if (!player.hasShipOnCell(pos)) {
+                if (player.getSelectedShip().isValidCell(pos)) {
+                    player.getSelectedShip().addCellPosition(pos);
+                    DisplayHelper.colorCell(canvas, pos, Color.BLACK);
                 }
             }
+        }
+        if (player.getSelectedShip().isPlaced()) player.setSelectedShip(null);
+    }
+
+    private void rightClickOnGrid(Position pos) {
+
+        Ship s = player.getShipOnCell(pos);
+
+        if (s == player.getSelectedShip()) {
+            s.clearCell(canvas, pos);
+        } else if (s != null) {
+            s.clearAllCells(canvas);
         }
     }
 
 
-    private void shipButtonAction(Button b, Ship s)
-    {
-        if ((player.getSelectedShip() == null) || (player.getSelectedShip() == s))
-        {
-            if (player.getSelectedShip() == null) {
-                player.setSelectedShip(s);
-                b.setText("Annuler");
-            }
-            else {
-                player.setSelectedShip(null);
-                b.setText(s.getName() + " (" + s.getLength() + " - " + s.getShootingRange() + ")");
-            }
+    private void shipButtonAction(Button b, Ship s) {
+        Ship current = player.getSelectedShip();
+        if (current == null || current.isPlaced() || current.isEmpty()) {
+            player.setSelectedShip(s);
+            currentShipLabel.setText(s.getName());
         }
     }
 
-    private void validatePlacement() {
-        if (player.areAllPlaced()) {
+    private void validateButtonAction() {
+        //if (player.hasPlacedAllShips()) {
             goToNextState();
-        }
+        //}
     }
+
 }
+
