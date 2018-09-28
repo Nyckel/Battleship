@@ -25,15 +25,11 @@ public class EndingGameState extends State {
         title.setFont(new Font("Dubai Regular", 48));
         title.setTextFill(Color.DARKBLUE);
 
-        Button startButton = new Button("Rejouer");
-        startButton.setOnAction(e -> goToNextState()); //TODO: Return to original state
-        startButton.setPrefSize(150, 50);
-
         VBox layout = new VBox(10);
         layout.setAlignment(Pos.CENTER);
         layout.setPrefSize(DisplayHelper.WINDOW_WIDTH, DisplayHelper.WINDOW_HEIGHT);
 
-        layout.getChildren().addAll(title, startButton);
+        layout.getChildren().add(title);
 
         scene = new Scene(layout);
 

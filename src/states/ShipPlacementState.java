@@ -51,6 +51,8 @@ public class ShipPlacementState extends State {
         VBox buttonsLayout = new VBox(0);
         buttonsLayout.setAlignment(Pos.CENTER);
 
+        Label warnDelShipLabel = new Label("Right click to delete a ship");
+
         currentShipLabel = new Label(player.getSelectedShip().getName());
         buttonsLayout.getChildren().add(currentShipLabel);
 
@@ -60,6 +62,8 @@ public class ShipPlacementState extends State {
             b.setOnAction(e -> shipButtonAction(b, s));
             buttonsLayout.getChildren().add(b);
         }
+
+        buttonsLayout.getChildren().add(warnDelShipLabel);
 
         mainLayout.setMargin(buttonsLayout, margin);
         mainLayout.setAlignment(buttonsLayout, Pos.TOP_RIGHT);
@@ -149,9 +153,9 @@ public class ShipPlacementState extends State {
     }
 
     private void validateButtonAction() {
-        //if (player.hasPlacedAllShips()) {
+        if (player.hasPlacedAllShips()) {
             goToNextState();
-        //}
+        }
     }
 
 }

@@ -73,12 +73,19 @@ public class DisplayHelper {
         for (Position pos : positions) colorCell(canvas, pos, color);
     }
 
+    public static void clearAllCells(Canvas canvas) {
+        for (int y = 1; y < 11; y++) {
+            for (int x = 1; x < 11; x++) {
+                clearCell(canvas, new Position(x, y));
+            }
+        }
+    }
+
     public static void clearCell(Canvas canvas, Position pos){
         colorCell(canvas, pos, Color.WHITE);
     }
 
     public static void addCrossToCell(Canvas cv, Position pos, Color color) {
-        System.out.println("Adding cross");
         GraphicsContext gc = cv.getGraphicsContext2D();
 
         gc.setStroke(color);

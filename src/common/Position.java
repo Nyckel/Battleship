@@ -4,8 +4,7 @@ public class Position {
     public int x;
     public int y;
 
-    public Position(int xPos, int yPos)
-    {
+    public Position(int xPos, int yPos){
         this.x = xPos;
         this.y = yPos;
     }

@@ -22,7 +22,7 @@ public abstract class Ship {
     protected int length;
     protected int shootingRange;
     protected String shootingType;
-    private int HP = 3;
+    private int hp = 3;
     private Orientation orientation;
     private boolean placed = false;
     private ArrayList<Position> cellsPositions;
@@ -41,8 +41,7 @@ public abstract class Ship {
         return this.length;
     }
     public int getShootingRange(){ return this.shootingRange; }
-    public String getShootingType(){ return this.shootingType;}
-    public int getHP(){ return this.HP; }
+    public int getHP(){ return hp; }
 
     public boolean isPlaced(){ return this.placed; }
     public boolean isEmpty() { return cellsPositions.isEmpty(); }
@@ -104,7 +103,7 @@ public abstract class Ship {
 
 
     // Setters
-    public void setHP(int HP){ this.HP = HP; }
+    public void setHP(int p_hp){ hp = p_hp; }
 
     public void addCellPosition(Position pos) {
         cellsPositions.add(pos);
@@ -121,10 +120,10 @@ public abstract class Ship {
 
     }
 
-    public void changePosition(int index, Position positionXY){ this.cellsPositions.set(index, positionXY); }
+    public void changePosition(int index, Position positionXY) { this.cellsPositions.set(index, positionXY); }
 
     // Hit
-    public void takeHit(){ this.setHP(this.getHP() - 1); }
+    public void takeHit(){ hp--;System.out.println(name + " hp: " + hp); }
 
     public boolean containsCell(Position pos) {
         for (Position p : cellsPositions) {
@@ -156,19 +155,24 @@ public abstract class Ship {
         placed = false;
     }
 
-    public void drawAllCells(Canvas canvas) {
+    public void drawAllCells(Canvas canvas, boolean clean) {
         for (Position cell : cellsPositions) {
             Color color;
-            switch (getHP()) {
-                case 3 :
-                    DisplayHelper.colorCell(canvas, cell, COLOR_FULL_HP);
-                    break;
-                case 2 :
-                    DisplayHelper.colorCell(canvas, cell, COLOR_MID_HP);
-                    break;
-                case 1:
-                    DisplayHelper.colorCell(canvas, cell, COLOR_LOW_HP);
-                    break;
+            if (clean) {
+                DisplayHelper.colorCell(canvas, cell, Color.WHITE);
+            }
+            else {
+                switch (getHP()) {
+                    case 3 :
+                        DisplayHelper.colorCell(canvas, cell, COLOR_FULL_HP);
+                        break;
+                    case 2 :
+                        DisplayHelper.colorCell(canvas, cell, COLOR_MID_HP);
+                        break;
+                    case 1:
+                        DisplayHelper.colorCell(canvas, cell, COLOR_LOW_HP);
+                        break;
+                }
             }
         }
     }
@@ -214,10 +218,13 @@ public abstract class Ship {
         return cellsInRange;
     }
 
-    public void drawRange(Canvas canvas)
+    public void drawRange(Canvas canvas, boolean clean)
     {
         for (Position cell : cellsInRange)
-            DisplayHelper.colorCell(canvas, cell, COLOR_RANGE);
+            if (!clean)
+                DisplayHelper.colorCell(canvas, cell, COLOR_RANGE);
+            else
+                DisplayHelper.colorCell(canvas, cell, Color.WHITE);
     }
 
     public boolean hasInRange(Position pos) {
@@ -241,63 +248,10 @@ public abstract class Ship {
         return null;
     }
 
-    public ArrayList<ArrayList<Position>> getPossibleMoves() {
-        ArrayList<ArrayList<Position>> possibleMoves = new ArrayList<>();
-        int min = GRID_SIZE + 1;
-        int max = -1;
-        int otherCoord = -1;
-
-        ArrayList<Position> cellsBefore = new ArrayList<>();
-        ArrayList<Position> cellsAfter = new ArrayList<>();
-
-        if (isHorizontal())
-        {
-            for (Position cell : cellsPositions)
-            {
-                if (cell.x > max)
-                    max = cell.x;
-                if (cell.x < min)
-                    min = cell.x;
-                otherCoord  = cell.y;
-            }
-            if (min > 1)
-                cellsBefore.add(new Position(min - 1, otherCoord));
-            if (min > 2)
-                cellsBefore.add(new Position(min - 2, otherCoord));
-            if (max < 10)
-                cellsAfter.add(new Position(max + 1, otherCoord));
-            if (max < 9)
-                cellsAfter.add(new Position(max + 2, otherCoord));
-        }
-        else if (isVertical())
-        {
-            for (Position cell : cellsPositions)
-            {
-                if (cell.y > max)
-                    max = cell.y;
-                if (cell.y < min)
-                    min = cell.y;
-                otherCoord = cell.x;
-            }
-            if (min > 1)
-                cellsBefore.add(new Position(otherCoord, min - 1));
-            if (min > 2)
-                cellsBefore.add(new Position(otherCoord, min - 2));
-            if (max < 10)
-                cellsAfter.add(new Position(otherCoord, max + 1));
-            if (max < 9)
-                cellsAfter.add(new Position(otherCoord, max + 2));
-        }
-        possibleMoves.add(cellsBefore);
-        possibleMoves.add(cellsAfter);
-        return possibleMoves;
-
-    }
-
-    public void move(Position p)
-    {
+    public void move(Position p) {
         int[] indices = {-1,1,-2,2};
         int movCell = 0;
+        Position pos;
 
         if (isHorizontal()) {
             for (int i = 0; i < indices.length; i++) {
@@ -310,8 +264,10 @@ public abstract class Ship {
                 }
             }
 
+
             for (int i = 0; i < cellsPositions.size(); i++) {
-                changePosition(i, new Position(p.x + movCell, p.y));
+                pos = cellsPositions.get(i);
+                changePosition(i, new Position(pos.x + movCell, pos.y));
             }
         }
         if (isVertical()) {
@@ -326,11 +282,11 @@ public abstract class Ship {
             }
 
             for (int i = 0; i < cellsPositions.size(); i++) {
-                changePosition(i, new Position(p.x, p.y + movCell));
+                pos = cellsPositions.get(i);
+                changePosition(i, new Position(pos.x, pos.y + movCell));
             }
         }
 
-        orderCells();
         updateRange();
     }
 }
