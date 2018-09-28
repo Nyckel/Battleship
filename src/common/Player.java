@@ -184,8 +184,6 @@ public class Player {
     public void drawPossibleMoves(Canvas canvas, boolean clean) {
         ArrayList<Position> possibleMoves = getPossibleMoves();
 
-        for (Position p : possibleMoves)
-            System.out.println(p.x + " " + p.y);
 
         if (possibleMoves == null) return;
 
@@ -201,8 +199,6 @@ public class Player {
         ArrayList<Shot> missiles;
         if (type == "fired") {
             missiles = missilesFired;
-            for (Shot s : missiles)
-                System.out.println(s.x + " " + s.y);
         }
         else
             missiles = missilesReceived;

@@ -123,7 +123,7 @@ public abstract class Ship {
     public void changePosition(int index, Position positionXY) { this.cellsPositions.set(index, positionXY); }
 
     // Hit
-    public void takeHit(){ hp--;System.out.println(name + " hp: " + hp); }
+    public void takeHit(){ hp--; }
 
     public boolean containsCell(Position pos) {
         for (Position p : cellsPositions) {
@@ -207,10 +207,6 @@ public abstract class Ship {
                         cellsInRange.add(new Position(cell.x, cell.y + i));
                 }
             }
-        }
-        System.out.println("Setting range of " + name + "to: ");
-        for (Position cell : cellsInRange) {
-            System.out.println(cell);
         }
     }
 

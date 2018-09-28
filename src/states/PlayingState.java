@@ -105,7 +105,6 @@ public class PlayingState extends State {
             } else DisplayHelper.addCrossToCell(cvDown, player.getLastHit(), Color.BLACK);
         }
         if (shipMovementPossible) {
-            System.out.println("Ship movement possible");
             labelAndButtonsLayout.getChildren().add(refuseMoveButton);
         }
     }
@@ -194,7 +193,6 @@ public class PlayingState extends State {
 
         if (nextState.getPlayer().hasLost()) {
             EndingGameState endingGameState = new EndingGameState(player);
-            System.out.println("end");
             setNextState(endingGameState);
         }
 
